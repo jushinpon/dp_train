@@ -117,9 +117,9 @@ if($trainNo != @pb_folders){
 print "training number: $trainNo\n";
 #make plots
 my @make_plots = ("train","validation");
-
+my $pm = Parallel::ForkManager->new("$trainNo");
 for (1..$trainNo){
-    #$pm->start and next;
+    $pm->start and next;
     my $temp = sprintf("%02d",$_);
     chomp $temp;
     `rm ./lcurve.out`;#remove old lcurve.out in current dir 
@@ -193,10 +193,10 @@ for (1..$trainNo){
         system ("python dp_plots.py");
         sleep(1);
         `mv ./dp_temp.png $mainPath/matplot/00$make_plots[$_]-graph$temp.png`;    
-    #$pm-> finish;
     }#train and validation loops
+    $pm-> finish;
 }
-#$pm->wait_all_children;
+$pm->wait_all_children;
 
 ##housekeeping
 #`rm ./lcurve.out`;#remove old lcurve.out in current dir 

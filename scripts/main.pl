@@ -181,7 +181,10 @@ if($jobtype eq "npy_only"){# a brand new dpgen job. No previous labeled npy file
     close(UD);
 
     #the following loop also check the required files in the corresponding folder
+    my $pm = Parallel::ForkManager->new("4");
     for my $str (@allIniStr){
+        $pm->start and next;
+        
         chomp $str;
         $npy_setting{inistr_dir}  = "$mainPath/initial/$str";
         $npy_setting{npyout_dir}  = "$mainPath/all_npy/initial/$str";
@@ -225,7 +228,9 @@ if($jobtype eq "npy_only"){# a brand new dpgen job. No previous labeled npy file
             $npy_setting{expBE} = 0.0;#not used
             &DFTout2npy_QE(\%system_setting,\%npy_setting);#send settings for getting npy
         }
+        $pm-> finish;
     }
+    $pm->wait_all_children;
     print "\n\n****Only do the npy convertion for data in the initial folder.\n";
     print "You need to check files in $mainPath/npy_conversion_info to see".
     " if you are satisfied with your skipped QE sout files.\n";

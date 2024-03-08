@@ -15,7 +15,7 @@ my $parent_path = `dirname $currentPath`;
 $parent_path =~ s/^\s+|\s+$//g;
 `rm -rf $parent_path/DLP_test`;#remove old data
 `mkdir -p   $parent_path/DLP_test`;
-my @datafile = `find $parent_path/initial -maxdepth 2 -mindepth 2 -type f -name "*.data"`;#find all data files to read by read_data in lmp scripts
+my @datafile = `find -L $parent_path/initial -maxdepth 2 -mindepth 2 -type f -name "*.data"`;#find all data files to read by read_data in lmp scripts
 map { s/^\s+|\s+$//g; } @datafile;
 die "No data files\n" unless(@datafile);
 
@@ -63,9 +63,10 @@ my @string = qq(
 #SBATCH --job-name=DLP_test
 #SBATCH --nodes=1
 #SBATCH --partition=All
+source activate deepmd-cpu
 np=\$(nproc)
-export LD_LIBRARY_PATH=/opt/mpich-4.0.3/lib:\$LD_LIBRARY_PATH
-export PATH=/opt/mpich-4.0.3/bin:/opt/lammps-mpich-4.0.3:\$PATH
+#export LD_LIBRARY_PATH=/opt/mpich-4.0.3/lib:\$LD_LIBRARY_PATH
+#export PATH=/opt/mpich-4.0.3/bin:/opt/lammps-mpich-4.0.3:\$PATH
 );
 
 map { s/^\s+|\s+$//g; } @string;
@@ -81,7 +82,7 @@ for (@lmp_path){
     my $file = `basename $_`;
     $dir =~ s/^\s+|\s+$//g;
     $file =~ s/^\s+|\s+$//g;
-    print FH "cd $dir;mpiexec -np \$np lmpdeepmd -in $file\n";
+    print FH "cd $dir;mpiexec -np \$np lmp -in $file\n";
 }
 
 close(FH);
