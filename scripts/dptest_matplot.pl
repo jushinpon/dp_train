@@ -117,23 +117,30 @@ if($trainNo != @pb_folders){
 print "training number: $trainNo\n";
 #make plots
 my @make_plots = ("train","validation");
-my $pm = Parallel::ForkManager->new("$trainNo");
+my $pm = Parallel::ForkManager->new("4");
 for (1..$trainNo){
     $pm->start and next;
     my $temp = sprintf("%02d",$_);
     chomp $temp;
-    `rm ./lcurve.out`;#remove old lcurve.out in current dir 
+    #`rm ./lcurve.out`;#remove old lcurve.out in current dir 
     `cp  $mainPath/dp_train/graph$temp/lcurve.out ./`;#for loss profiles
     `cp  $mainPath/dp_train/graph$temp/lcurve.out $mainPath/matplot_data/lcurve-graph$temp.out`;#for raw data
 
     for (0..$#make_plots){#train and validation
-        `rm ./temp.*.out`;#remove old dp test output files in current dir 
-        `rm ./tempmod.*.out`;#remove old dp test output files in current dir 
+        #`rm ./temp.*.out`;#remove old dp test output files in current dir 
+        #`rm ./tempmod.*.out`;#remove old dp test output files in current dir 
        
         #the following for check pred. and ref. data distributions for energy, force, and virial 
-        my $source = "$npydir4matplot/$make_plots[$_]"."_npy"; 
-
-        system("source activate deepmd-cpu;dp test -n 100000 -m $mainPath/dp_train/graph$temp/graph$temp.pb -s $source -d ./temp.out -v 0 2>&1 >/dev/null;conda deactivate");
+        my $source = "$npydir4matplot/$make_plots[$_]"."_npy";
+        my @num = `find -L $source -type f -name energy.raw`; 
+        map { s/^\s+|\s+$//g; } @num;
+        my $dataNu = 0;
+        for my $s (@num){
+           # print "$s\n";
+            my @lines = `grep -v '^[[:space:]]*\$' $s`;
+            $dataNu += @lines;
+        }
+        system("source activate deepmd-cpu;dp test -n $dataNu -m $mainPath/dp_train/graph$temp/graph$temp.pb -s $source -d ./temp.out -v 0 2>&1 >/dev/null;conda deactivate");
 
 # get atom number for normalizing energy
         `cp  ./temp.e.out $mainPath/matplot_data/$make_plots[$_]-Oritemp.e-graph$temp.out`;#for raw data

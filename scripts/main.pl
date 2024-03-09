@@ -181,7 +181,7 @@ if($jobtype eq "npy_only"){# a brand new dpgen job. No previous labeled npy file
     close(UD);
 
     #the following loop also check the required files in the corresponding folder
-    my $pm = Parallel::ForkManager->new("4");
+    my $pm = Parallel::ForkManager->new("2");
     for my $str (@allIniStr){
         $pm->start and next;
         
@@ -234,8 +234,38 @@ if($jobtype eq "npy_only"){# a brand new dpgen job. No previous labeled npy file
     print "\n\n****Only do the npy convertion for data in the initial folder.\n";
     print "You need to check files in $mainPath/npy_conversion_info to see".
     " if you are satisfied with your skipped QE sout files.\n";
+    print "\n**Checking if any npy case is bad now\n";
+    my @npy = ("energy","virial","force","coord","box");
+    my @all_set = `find $mainPath/all_npy*  -type d -name "set*"`;#all npy set folders
+    map { s/^\s+|\s+$//g; } @all_set;
+    for my $i (@all_set){
+        my $temp = `dirname $i`;
+        $temp =~ s/^\s+|\s+$//g;
+        die "No type.raw in $temp\n" unless(-e "$temp/type.raw");
+
+        for my $n (@npy){
+            die "No $n.npy in $i\n" unless(-e "$i/$n.npy");
+        }
+    }
+    print "**All npy related files are ready for training\n";
 }
 elsif($jobtype eq "dp_train"){# old npy files exist
+    print "\n**Checking if any npy related files are good for training process\n";
+    my @npy = ("energy","virial","force","coord","box");
+    my @all_set = `find $mainPath/all_npy*  -type d -name "set*"`;#all npy set folders
+    map { s/^\s+|\s+$//g; } @all_set;
+    for my $i (@all_set){
+        my $temp = `dirname $i`;
+        $temp =~ s/^\s+|\s+$//g;
+        die "No type.raw in $temp\n" unless(-e "$temp/type.raw");
+
+        for my $n (@npy){
+            die "No $n.npy in $i\n" unless(-e "$i/$n.npy");
+        }
+    }
+    print "**All npy related files are ready for training\n";
+    print "training process starts!!\n";
+    
     my @allnpys = `find $mainPath/all_npy*  -type f -name "*.npy"`;
     map { s/^\s+|\s+$//g; } @allnpys;
     my %allnpyfolders;
@@ -260,7 +290,7 @@ else{
     die "wrong jobtype setting in all_settings.pm\n";
 }
 
-print "perl main.pl for jobtype = \"dp_train\" done!\n";
+print "perl main.pl for jobtype = \"$jobtype\" done!\n";
 
 
 
