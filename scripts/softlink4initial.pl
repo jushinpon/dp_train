@@ -3,8 +3,7 @@ use strict;
 
 `mkdir ../initial`;
 my @all_inifolder = qw(
-/home/jsp/SnPbTe_alloys/make_B2_related_data/QEall_set
-/home/jsp/SnPbTe_alloys/QE_from_MatCld/QEall_set
+    /home/jsp1/test/perl4dpgen_20221025/initial
 );
 map { s/^\s+|\s+$//g; } @all_inifolder;
 my @all_ini;

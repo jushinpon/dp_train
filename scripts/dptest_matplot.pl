@@ -132,9 +132,9 @@ if($trainNo != @pb_folders){
 print "training number: $trainNo\n";
 #make plots
 my @make_plots = ("train","validation");
-my $pm = Parallel::ForkManager->new("4");
+#my $pm = Parallel::ForkManager->new("$trainNo");
 for (1..$trainNo){
-    $pm->start and next;
+#    $pm->start and next;
     my $temp = sprintf("%02d",$_);
     chomp $temp;
     #`rm ./lcurve.out`;#remove old lcurve.out in current dir 
@@ -155,7 +155,10 @@ for (1..$trainNo){
             my @lines = `grep -v '^[[:space:]]*\$' $s`;
             $dataNu += @lines;
         }
-        system("source activate deepmd-cpu;dp test -n $dataNu -m $mainPath/dp_train/graph$temp/graph$temp.pb -s $source -d ./temp.out -v 0 2>&1 >/dev/null;conda deactivate");
+        print "**\$dataNu: $dataNu\n";
+        #system("bash -c 'source /opt/anaconda3/bin/activate deepmd-cpu'");
+        system("bash -c 'source /opt/anaconda3/bin/activate deepmd-cpu;dp test -n $dataNu -m $mainPath/dp_train/graph$temp/graph$temp.pb -s $source -d ./temp.out -v 0 2>&1 >/dev/null'");
+        #system("dp test -n $dataNu -m $mainPath/dp_train/graph$temp/graph$temp.pb -s $source -d ./temp.out -v 0 2>&1 >/dev/null");
 
 # get atom number for normalizing energy
         `cp  ./temp.e.out $mainPath/matplot_data/$make_plots[$_]-Oritemp.e-graph$temp.out`;#for raw data
@@ -212,13 +215,13 @@ for (1..$trainNo){
         `cp  ./temp.e.out $mainPath/matplot_data/$make_plots[$_]-temp.e-graph$temp.out`;#for raw data
 
 # end of energy normalization    
-        system ("python dp_plots.py");
+        system ("bash -c 'source /opt/anaconda3/bin/activate base;python dp_plots.py'");
         sleep(1);
         `mv ./dp_temp.png $mainPath/matplot/00$make_plots[$_]-graph$temp.png`;    
     }#train and validation loops
-    $pm-> finish;
+#    $pm-> finish;
 }
-$pm->wait_all_children;
+#$pm->wait_all_children;
 
 ##housekeeping
 #`rm ./lcurve.out`;#remove old lcurve.out in current dir 
