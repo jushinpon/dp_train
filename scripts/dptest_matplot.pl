@@ -32,6 +32,21 @@ my $npy_dirs = "$mainPath/all_npy*";#you may use your dir, under which all npy f
 my @temp = `find $npy_dirs -type d -name "set.*"`;#all npy files in set folders.
 die "no npy files under set folders in all_npy* folders\n" unless(@temp);
 map { s/^\s+|\s+$//g; } @temp;
+
+print "\n**Checking if any npy case is bad now\n";
+my @npy = ("energy","virial","force","coord","box");
+my @all_set = @temp;#all npy set folders
+map { s/^\s+|\s+$//g; } @all_set;
+for my $i (@all_set){
+    my $temp = `dirname $i`;
+    $temp =~ s/^\s+|\s+$//g;
+    die "No type.raw in $temp\n" unless(-e "$temp/type.raw");
+    for my $n (@npy){
+        die "No $n.npy in $i\n" unless(-e "$i/$n.npy");
+    }
+}
+print "**All npy related files are ready for making plot files\n";
+
 my @allnpy_temp; # dirs with all set.XXX folders
 for (0..$#temp){
     my $temp = `dirname $temp[$_]`;
