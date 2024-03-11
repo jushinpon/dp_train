@@ -157,8 +157,12 @@ for (1..$trainNo){
         }
         print "**\$dataNu: $dataNu\n";
         #system("bash -c 'source /opt/anaconda3/bin/activate deepmd-cpu'");
-        system("bash -c 'source /opt/anaconda3/bin/activate deepmd-cpu;dp test -n $dataNu -m $mainPath/dp_train/graph$temp/graph$temp.pb -s $source -d ./temp.out -v 0 2>&1 >/dev/null'");
-        #system("dp test -n $dataNu -m $mainPath/dp_train/graph$temp/graph$temp.pb -s $source -d ./temp.out -v 0 2>&1 >/dev/null");
+        if(-e "/opt/anaconda3/bin/activate"){
+            system("bash -c 'source /opt/anaconda3/bin/activate deepmd-cpu;dp test -n $dataNu -m $mainPath/dp_train/graph$temp/graph$temp.pb -s $source -d ./temp.out -v 0 2>&1 >/dev/null'");
+        }
+        else{
+            system("bash -c 'source /opt/miniconda3/bin/activate deepmd-cpu;dp test -n $dataNu -m $mainPath/dp_train/graph$temp/graph$temp.pb -s $source -d ./temp.out -v 0 2>&1 >/dev/null'");
+        }#system("dp test -n $dataNu -m $mainPath/dp_train/graph$temp/graph$temp.pb -s $source -d ./temp.out -v 0 2>&1 >/dev/null");
 
 # get atom number for normalizing energy
         `cp  ./temp.e.out $mainPath/matplot_data/$make_plots[$_]-Oritemp.e-graph$temp.out`;#for raw data
@@ -214,8 +218,13 @@ for (1..$trainNo){
         }
         `cp  ./temp.e.out $mainPath/matplot_data/$make_plots[$_]-temp.e-graph$temp.out`;#for raw data
 
-# end of energy normalization    
-        system ("bash -c 'source /opt/anaconda3/bin/activate base;python dp_plots.py'");
+# end of energy normalization
+        if(-e "/opt/anaconda3/bin/activate"){
+            system ("bash -c 'source /opt/anaconda3/bin/activate base;python dp_plots.py'");
+        }
+        else{
+            system ("bash -c 'source /opt/miniconda3/bin/activate base;python dp_plots.py'");
+        }
         sleep(1);
         `mv ./dp_temp.png $mainPath/matplot/00$make_plots[$_]-graph$temp.png`;    
     }#train and validation loops
