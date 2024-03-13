@@ -1,7 +1,8 @@
 =b
 Perl version for degen. Developed by Prof. Shin-Pon Ju at NSYSU
-open a tmux session first, and then
-perl main.pl > ../degen.log
+usage: nohup perl main.pl > nohup.txt &
+find the max forces of all qe sout file in decending sequence: 
+grep "Max force" nohup.txt|awk '{print $NF}'|sort -nr
 
 You need to check your deepmd-kit path (dp train and lmp) and QE path for slurm job submission
 =cut
