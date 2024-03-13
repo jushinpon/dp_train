@@ -38,12 +38,16 @@ print NC "##cases in the original initial folder\n";
 #my @all_ini = `find ../initial -type f -name "*.sout"`;
 map { s/^\s+|\s+$//g; } @all_ini;
 for my $i (@all_ini){
-    my @temp = split(/\//,$i);
-    if(-e "$i/$temp[-1].sout" && !`grep "convergence NOT achieved after" $i/$temp[-1].sout`){
+    my @temp = split(/\//,$i);#JOB DONE
+    if(-e "$i/$temp[-1].sout" && !`grep "convergence NOT achieved after" $i/$temp[-1].sout`
+    && `grep "JOB DONE" $i/$temp[-1].sout` ){
         `mkdir ../initial/$temp[-1]`;
         `ln -s $i/$temp[-1].in ../initial/$temp[-1]/$temp[-1].in`; 
         `ln -s $i/$temp[-1].sout ../initial/$temp[-1]/$temp[-1].sout`; 
         `ln -s $i/$temp[-1].data ../initial/$temp[-1]/$temp[-1].data`;
+    }
+    elsif(-e "$i/$temp[-1].sout" && !`grep "JOB DONE" $i/$temp[-1].sout`){
+         print NC "!!!!DEAD case: $i/$temp[-1].sout\n";
     }
     else{
         print NC "***No $i/$temp[-1].sout\n";
@@ -90,7 +94,8 @@ if($include_labelled eq "yes"){
             #print "$basename\n";
             #my $sout = `grep "convergence NOT achieved after" $i/$basename.sout`;
             
-            if( -e "$i/$basename.sout" && !`grep "convergence NOT achieved after" $i/$basename.sout`){
+            if( -e "$i/$basename.sout" && !`grep "convergence NOT achieved after" $i/$basename.sout`
+             && `grep "JOB DONE" $i/$basename.sout`){
                 my $index ="label_". sprintf("%07d",$counter);
                 #print "index:$index\n";   
                 `rm -rf ../initial/$index`;
@@ -103,6 +108,9 @@ if($include_labelled eq "yes"){
             }
             elsif(! -e "$i/$basename.sout"){
                 print NC "**no $i/$basename.sout\n";
+            }
+            elsif(-e "$i/$basename.sout" && !`grep "JOB DONE" $i/$basename.sout`){
+                print NC "!!!!DEAD case:  $i/$basename.sout\n";
             }
             else{
                 print NC "$i/$basename.sout\n";
