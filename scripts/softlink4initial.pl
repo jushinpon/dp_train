@@ -82,7 +82,7 @@ if($include_labelled eq "yes"){
             `mkdir ../initial/$index`;
             `cp $i/$basename.sout ../initial/$index/$index.sout`;
             `cp $i/$basename.in ../initial/$index/$index.in`;
-            `cp $i/$basename.data ../initial/$index/$index.data`;
+            #`cp $i/$basename.data ../initial/$index/$index.data`;
             print FH "$i/$basename.sout --> ../initial/$index/$index.sout\n";
             $counter++;
         }
