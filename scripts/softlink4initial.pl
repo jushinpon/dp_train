@@ -3,14 +3,15 @@ use strict;
 
 `rm -rf ../initial`;#if you have old files in initial, you may mark this line.
 `mkdir ../initial`;
+##
 
 #####make link for labelled folders
 my $include_labelled = "yes";#if yes, you need to provide parent paths of your labelled folders (@all_labelled) 
 my @all_labelled;
 if($include_labelled eq "yes"){
     @all_labelled = qw(
-        /home/wayne/perl4dpgen_20221025_old/all_cfgs_11
-        /home/wayne/perl4dpgen_20221025_old/all_cfgs_33
+        /home/dongye/DP/DP_0215_PTMcheck/label_1/
+        /home/dongye/DP/DP_0215_PTMcheck/label_300/
     );
     map { s/^\s+|\s+$//g; } @all_labelled;
 }
@@ -19,7 +20,7 @@ if($include_labelled eq "yes"){
 my @all_inifolder;
 #!!! make the following if you have place everything in the initial folder
 @all_inifolder= qw(
-    /home/wayne/perl4dpgen_20221025_old/initial
+    /home/dongye/DP/dp_train/initial/
 );
 map { s/^\s+|\s+$//g; } @all_inifolder;
 
@@ -31,18 +32,28 @@ for (@all_inifolder){
     @all_ini = (@all_ini,@temp);
 }
 
+open(NC, "> ./nonconvergence.dat") or die $!;
+print NC "##The following files are not converaged or no sout files, which are skipped!\n\n";
+print NC "##cases in the original initial folder\n";
 #my @all_ini = `find ../initial -type f -name "*.sout"`;
 map { s/^\s+|\s+$//g; } @all_ini;
 for my $i (@all_ini){
     my @temp = split(/\//,$i);
-    `mkdir ../initial/$temp[-1]`;
-    `ln -s $i/$temp[-1].in ../initial/$temp[-1]/$temp[-1].in`; 
-    `ln -s $i/$temp[-1].sout ../initial/$temp[-1]/$temp[-1].sout`; 
-    `ln -s $i/$temp[-1].data ../initial/$temp[-1]/$temp[-1].data`;   
+    if(-e "$i/$temp[-1].sout" && !`grep "convergence NOT achieved after" $i/$temp[-1].sout`){
+        `mkdir ../initial/$temp[-1]`;
+        `ln -s $i/$temp[-1].in ../initial/$temp[-1]/$temp[-1].in`; 
+        `ln -s $i/$temp[-1].sout ../initial/$temp[-1]/$temp[-1].sout`; 
+        `ln -s $i/$temp[-1].data ../initial/$temp[-1]/$temp[-1].data`;
+    }
+    else{
+        print NC "***No $i/$temp[-1].sout\n";
+    }
 }
 
 ##make softlink for all labelled folders
 if($include_labelled eq "yes"){
+    
+    print NC "\n\n##cases in the labelled folders:\n";    
     my @good_labelled;
     for (@all_labelled){
         my @temp = `find $_ -name labelled -type d `;
@@ -50,6 +61,7 @@ if($include_labelled eq "yes"){
         for my $i (@temp){
             unless(`ls $i`){
                 print "empty: $i\n";
+                print NC "**empty folder: $i\n";
             }
             else{
                 push @good_labelled, $i;
@@ -72,20 +84,35 @@ if($include_labelled eq "yes"){
             $basename =~ s/^\s+|\s+$//g;
             $dirname =~ s/^\s+|\s+$//g;
             $basename =~ s/\.sout//g;
-
+#-e "$i/$basename.sout" &&
             #print "path: $j\n";  
             #print "$dirname\n";  
-            #print "$basename\n";  
-            my $index ="label_". sprintf("%07d",$counter);
-            #print "index:$index\n";   
-            `rm -rf ../initial/$index`;
-            `mkdir ../initial/$index`;
-            `cp $i/$basename.sout ../initial/$index/$index.sout`;
-            `cp $i/$basename.in ../initial/$index/$index.in`;
-            #`cp $i/$basename.data ../initial/$index/$index.data`;
-            print FH "$i/$basename.sout --> ../initial/$index/$index.sout\n";
-            $counter++;
+            #print "$basename\n";
+            #my $sout = `grep "convergence NOT achieved after" $i/$basename.sout`;
+            
+            if( -e "$i/$basename.sout" && !`grep "convergence NOT achieved after" $i/$basename.sout`){
+                my $index ="label_". sprintf("%07d",$counter);
+                #print "index:$index\n";   
+                `rm -rf ../initial/$index`;
+                `mkdir ../initial/$index`;
+                `cp $i/$basename.sout ../initial/$index/$index.sout`;
+                `cp $i/$basename.in ../initial/$index/$index.in`;
+                #`cp $i/$basename.data ../initial/$index/$index.data`;
+                print FH "$i/$basename.sout --> ../initial/$index/$index.sout\n";
+                $counter++;
+            }
+            elsif(! -e "$i/$basename.sout"){
+                print NC "**no $i/$basename.sout\n";
+            }
+            else{
+                print NC "$i/$basename.sout\n";
+            }
         }
     }
   close(FH);
 }
+
+close(NC);
+print "You need to check the files or folders with problems below:\n";
+system("cat ./nonconvergence.dat");
+print "\n\nFor details, please refer to ./nonconvergence.dat\n";

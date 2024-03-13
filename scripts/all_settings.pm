@@ -12,7 +12,7 @@ use warnings;
 use Cwd;
 use POSIX;
 ###!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! You need to set the following parameters for your case !!!!!!!!!
-my @DLP_elements = ("Zn","O","Al");#your DLP element sequence
+my @DLP_elements = ("Co","Cr","Cu","Fe","Ni","V");#your DLP element sequence
 my $force_upperbound = 50.0;# eV/A, the max force allowed in npy
 
 #Please set the following for $jobtype in order:
