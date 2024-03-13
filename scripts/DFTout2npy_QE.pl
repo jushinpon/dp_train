@@ -1,4 +1,8 @@
 =b
+usage: nohup perl main.pl > nohup.txt &
+find the max forces of all qe sout file in decending sequence: 
+grep "Max force" nohup.txt|awk '{print $NF}'|sort -nr
+
 unit comvertion:
 http://greif.geo.berkeley.edu/~driver/conversions.html
 Usage: perl DFTout2npy.pl 

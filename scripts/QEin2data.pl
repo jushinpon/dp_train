@@ -35,6 +35,7 @@ my $currentPath = getcwd();
 my @QEin_files = `find -L ../initial -type f -name "*.in"`;#sout in current folder
 map { s/^\s+|\s+$//g; } @QEin_files;
 unless(@QEin_files){die "no QE input files to convert into lmp data files.\n";}
+print "total folders after $0: ".@QEin_files."\n";
 
 for my $file (@QEin_files){
     my $QEin_path = `dirname $file`;

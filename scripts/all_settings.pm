@@ -12,14 +12,14 @@ use warnings;
 use Cwd;
 use POSIX;
 ###!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! You need to set the following parameters for your case !!!!!!!!!
-my @DLP_elements = ("Sn","Pb","Te");#your DLP element sequence
+my @DLP_elements = ("Zn","O","Al");#your DLP element sequence
 my $force_upperbound = 50.0;# eV/A, the max force allowed in npy
 
 #Please set the following for $jobtype in order:
 #1. npy_only: get npy files and files in npy_conversion_info
 #2. dp_train: only do dp train with your npy files.
-#my $jobtype = "npy_only";
-my $jobtype = "dp_train";
+my $jobtype = "npy_only";
+#my $jobtype = "dp_train";
 
 #for label
 my $trainNo = 4;#4 for label, and 1 with a larger training step (20000000) for the final
